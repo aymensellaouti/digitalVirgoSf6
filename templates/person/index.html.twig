@@ -1,0 +1,44 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Personnes{% endblock %}
+
+{% block body %}
+
+    {# Tableau des personnes #}
+    <div class="row">
+        {% for personne in personnes %}
+        <div class="col-4">
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ personne.name }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ personne.age }} ans</h6>
+                        <p class="card-text"> {{ personne.cin }}.</p>
+                        <a href="{{path('app_delete_person', {id: personne.id})}}" class="card-link">Delete</a>
+                    </div>
+                </div>
+        </div>
+        {% endfor %}
+    </div>
+    {# Pagination #}
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            {% if page != 1 %}
+                <li class="page-item"><a class="page-link" href="{{ path('app_list_person', {page: 1, nbre:nbre}) }}">Previous</a></li>
+            {% endif %}
+
+            {% for i in range(1, nbPage) %}
+                <li class="page-item">
+                    <a
+                            class="page-link"
+                            href="{{ path('app_list_person', {page: i, nbre:nbre}) }}"
+                    >
+                        {{ i }}
+                    </a></li>
+            {% endfor %}
+
+            {% if page != nbPage %}
+                <li class="page-item"><a class="page-link" href="{{ path('app_list_person', {page: nbPage, nbre:nbre}) }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}

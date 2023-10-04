@@ -1,0 +1,24 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="card text-white bg-primary m-3 col" >
+            <div class="card-header">Age Moyen des personnes entre {{ ageMin }} et {{ ageMax }}</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ stats.AgeMoyen }}</h5>
+            </div>
+        </div>
+
+        <div class="card text-white bg-secondary m-3 col">
+            <div class="card-header">Nombre de personnes entre {{ ageMin }} et {{ ageMax }}</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ stats.nombrePersonne }}</h5>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block title %}
+    Stats
+{% endblock %}
+
