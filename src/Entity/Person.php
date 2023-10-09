@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[
     ORM\Entity(repositoryClass: PersonRepository::class),
@@ -21,7 +22,10 @@ class Person
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
+    #[
+        ORM\Column(length: 50),
+        Assert\NotBlank(message: 'Ce champ est obligatoire' )
+    ]
     private ?string $name = null;
 
 
@@ -33,6 +37,25 @@ class Person
 
     #[ORM\ManyToOne]
     private ?Job $job = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private string $path;
+
+    /**
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath(string $path): void
+    {
+        $this->path = $path;
+    }
 
     #[ORM\ManyToMany(targetEntity: Hobby::class, inversedBy: 'people')]
     private Collection $hobbies;

@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -15,6 +18,18 @@ class FirstController extends AbstractController
         $response = new Response();
         $response->setContent($content);
         return $response;
+    }
+    #[Route('/form', name: 'form')]
+    public function formulaire()
+    {
+        $formBuilder = $this->createFormBuilder();
+        $formBuilder->add('name', TextType::class, [])
+             ->add('age', NumberType::class, [])
+            ->add('submit', SubmitType::class)
+        ;
+        return $this->render('form/index.html.twig', [
+            'form' => $formBuilder->getForm()->createView()
+        ]);
     }
 
 }

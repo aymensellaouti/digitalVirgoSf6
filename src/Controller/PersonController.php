@@ -3,11 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Person;
+use App\Form\PersonType;
+use App\services\FirstService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/person')]
 class PersonController extends AbstractController
@@ -28,11 +34,12 @@ class PersonController extends AbstractController
     }
 
     #[Route('/list/{page?1}/{nbre?12}', name: 'app_list_person')]
-    public function listPerson($page, $nbre): Response
+    public function listPerson($page, $nbre, FirstService $firstService): Response
     {
         // les personnes
+        $firstService->loger('Digitalvirgo');
         //$this->repository->findByQuelqueChose('sellaouti');
-        $personnes = $this->repository->findBy([], [], $nbre, ($page - 1) * $nbre);
+        $personnes = $this->repository->findBy([], ['createdAt' => 'DESC'], $nbre, ($page - 1) * $nbre);
         // Le nombre de personne
         $nbPersonnes = $this->repository->count([]);
         // Le nombre de page
@@ -45,8 +52,8 @@ class PersonController extends AbstractController
         ]);
     }
 
-    #[Route('/add/{name}/{age}/{cin}', name: 'app_add_person')]
-    public function addPerson($name, $age, $cin): Response
+    #[Route('/addfake/{name}/{age}/{cin}', name: 'app_add_fake_person')]
+    public function addFakePerson($name, $age, $cin): Response
     {
         $person1 = new Person();
         $person1->setName($name);
@@ -59,6 +66,57 @@ class PersonController extends AbstractController
 
     }
 
+    #[Route('/edit/{id?0}', name: 'app_add_person')]
+    public function addPerson(Request $request, SluggerInterface $slugger, Person $person = null): Response
+    {
+        $isNew = false;
+        if(!$person) {
+            $person = new Person();
+            $isNew = true;
+        }
+        $form = $this->createForm(PersonType::class, $person, /*[
+            'action' => $this->generateUrl('app_delete_person', ["id" => 10]),
+            'method' => 'GET'
+        ]*/);
+        $form->remove('createdAt');
+        $form->remove('updatedAt');
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $path */
+            $path = $form->get('image')->getData();
+
+            // this condition is needed because the 'brochure' field is not required
+            // so the PDF file must be processed only when a file is uploaded
+            if ($path) {
+                $originalFilename = pathinfo($path->getClientOriginalName(), PATHINFO_FILENAME);
+                // this is needed to safely include the file name as part of the URL
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$path->guessExtension();
+
+                // Move the file to the directory where brochures are stored
+                try {
+                    $path->move(
+                        $this->getParameter('person_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+
+                    // ... handle exception if something happens during file upload
+                }
+
+                // updates the 'brochureFilename' property to store the PDF file name
+                // instead of its contents
+                $person->setPath($newFilename);
+            }
+            $this->em->persist($person);
+            $this->em->flush();
+            return $this->redirectToRoute('app_list_person');
+        }
+        return $this->render('person/add.hml.twig', [
+            "form" => $form->createView()
+        ]);
+
+    }
     #[Route('/update/{id}/{name}/{age}', name: 'app_update_person')]
     public function updatePerson(Person $person = null,$name, $age): Response
     {

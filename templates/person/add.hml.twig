@@ -1,0 +1,19 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div class="row">
+        <div class="col">{{ form_row(form.name) }}</div>
+        <div class="col">{{ form_row(form.age) }}</div>
+    </div>
+    {{ form_rest(form) }}
+{% endblock %}
+
+{% block title %}
+    Edit Personne
+{% endblock %}
+
+{% block js %}
+    <script src="{{ asset('js/select2Activation.js') }}"></script>
+{% endblock %}
+

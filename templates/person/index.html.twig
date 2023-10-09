@@ -4,6 +4,9 @@
 
 {% block body %}
 
+    <div class="row">
+        <a href="{{ path('app_add_person') }}" class="btn btn-outline-primary"> Add Personne</a>
+    </div>
     {# Tableau des personnes #}
     <div class="row">
         {% for personne in personnes %}
@@ -13,6 +16,7 @@
                         <h5 class="card-title">{{ personne.name }}</h5>
                         <h6 class="card-subtitle mb-2 text-muted">{{ personne.age }} ans</h6>
                         <p class="card-text"> {{ personne.cin }}.</p>
+                        <a href="{{path('app_add_person', {id: personne.id})}}" class="card-link">Edit</a>
                         <a href="{{path('app_delete_person', {id: personne.id})}}" class="card-link">Delete</a>
                     </div>
                 </div>
