@@ -23,24 +23,6 @@ class PersonRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Person[] Returns an array of Person objects
-     */
-    public function findByQuelqueChose($value): array
-    {
-        $qb = $this->createQueryBuilder('p');
-        $qb->andWhere('p.name = :name')
-            ->setParameter('name', $value);
-        return $qb
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
-    /**
      * Cette fonction permet d'ajouter dans la requete des contraintes sur l'age min et max
      * @param QueryBuilder $qb
      * @param $min

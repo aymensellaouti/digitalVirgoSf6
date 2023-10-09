@@ -31,7 +31,7 @@ class PersonController extends AbstractController
     public function listPerson($page, $nbre): Response
     {
         // les personnes
-        $this->repository->findByQuelqueChose('sellaouti');
+        //$this->repository->findByQuelqueChose('sellaouti');
         $personnes = $this->repository->findBy([], [], $nbre, ($page - 1) * $nbre);
         // Le nombre de personne
         $nbPersonnes = $this->repository->count([]);

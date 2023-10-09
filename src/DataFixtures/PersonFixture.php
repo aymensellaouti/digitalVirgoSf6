@@ -16,10 +16,8 @@ class PersonFixture extends Fixture implements DependentFixtureInterface
     private $jobs;
     private $hobbies;
 
-    public function __construct(public readonly ManagerRegistry $doctrine)
-    {
-
-    }
+    public function __construct()
+    {}
 
     public function load(ObjectManager $manager): void
     {
