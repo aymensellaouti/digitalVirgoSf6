@@ -39,14 +39,16 @@ class Person
     private ?Job $job = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
-    private string $path;
+    private  ?string $path = '';
 
     /**
      * @return string
      */
     public function getPath(): string
     {
-        return $this->path;
+        if ($this->path)
+            return $this->path;
+        return 'default.svg';
     }
 
     /**

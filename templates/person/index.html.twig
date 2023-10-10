@@ -13,6 +13,7 @@
         <div class="col-4">
                 <div class="card" style="width: 18rem;">
                     <div class="card-body">
+                        <img src="{{ asset('uploads/person/'~personne.path) }}" alt="profile" class="rounded-circle" width="50px" height="50px">
                         <h5 class="card-title">{{ personne.name }}</h5>
                         <h6 class="card-subtitle mb-2 text-muted">{{ personne.age }} ans</h6>
                         <p class="card-text"> {{ personne.cin }}.</p>

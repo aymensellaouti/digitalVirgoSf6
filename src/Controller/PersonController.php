@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Person;
 use App\Form\PersonType;
 use App\services\FirstService;
+use App\services\UploaderService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -21,8 +22,12 @@ class PersonController extends AbstractController
     private $em;
     private $repository;
 
-    public function __construct(private ManagerRegistry $doctrine)
+    private string $appName;
+
+    public function __construct(private ManagerRegistry $doctrine, $appName)
     {
+        $this->appName = $appName;
+
         $this->em = $this->doctrine->getManager();
         $this->repository = $this->doctrine->getRepository(Person::class);
     }
@@ -36,6 +41,7 @@ class PersonController extends AbstractController
     #[Route('/list/{page?1}/{nbre?12}', name: 'app_list_person')]
     public function listPerson($page, $nbre, FirstService $firstService): Response
     {
+        //dd($this->appName);
         // les personnes
         $firstService->loger('Digitalvirgo');
         //$this->repository->findByQuelqueChose('sellaouti');
@@ -67,7 +73,7 @@ class PersonController extends AbstractController
     }
 
     #[Route('/edit/{id?0}', name: 'app_add_person')]
-    public function addPerson(Request $request, SluggerInterface $slugger, Person $person = null): Response
+    public function addPerson(Request $request, UploaderService $uploaderService, Person $person = null): Response
     {
         $isNew = false;
         if(!$person) {
@@ -84,29 +90,11 @@ class PersonController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $path */
             $path = $form->get('image')->getData();
-
-            // this condition is needed because the 'brochure' field is not required
-            // so the PDF file must be processed only when a file is uploaded
             if ($path) {
-                $originalFilename = pathinfo($path->getClientOriginalName(), PATHINFO_FILENAME);
-                // this is needed to safely include the file name as part of the URL
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$path->guessExtension();
-
-                // Move the file to the directory where brochures are stored
-                try {
-                    $path->move(
-                        $this->getParameter('person_directory'),
-                        $newFilename
-                    );
-                } catch (FileException $e) {
-
-                    // ... handle exception if something happens during file upload
-                }
-
+                $directory = $this->getParameter('person_directory');
                 // updates the 'brochureFilename' property to store the PDF file name
                 // instead of its contents
-                $person->setPath($newFilename);
+                $person->setPath($uploaderService->uploadFile($path, $directory));
             }
             $this->em->persist($person);
             $this->em->flush();
