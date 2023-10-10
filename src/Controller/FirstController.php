@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\services\MailerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -14,6 +15,15 @@ class FirstController extends AbstractController
     #[Route('/', name: 'hello')]
     public function hello()
     {
+        $content = "<html><body><h1>Hello</h1></body></html>";
+        $response = new Response();
+        $response->setContent($content);
+        return $response;
+    }
+    #[Route('/mail', name: 'mailer')]
+    public function mail(MailerService $mailerService)
+    {
+        $mailerService->sendEmail();
         $content = "<html><body><h1>Hello</h1></body></html>";
         $response = new Response();
         $response->setContent($content);
