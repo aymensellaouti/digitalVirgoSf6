@@ -12,7 +12,7 @@ class FirstService
 
     public function loger(string $message = 'hello'): void {
         $this->logger->info('Logged From First Service');
-        $this->logger->log($message);
+        $this->logger->info($message);
     }
 
 }
