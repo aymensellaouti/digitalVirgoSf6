@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Person;
+use App\Event\AddPersonEvent;
 use App\Form\PersonType;
 use App\services\FirstService;
 use App\services\UploaderService;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -24,7 +26,9 @@ class PersonController extends AbstractController
 
     private string $appName;
 
-    public function __construct(private ManagerRegistry $doctrine, $appName)
+    public function __construct(
+        private ManagerRegistry $doctrine,
+        $appName, private EventDispatcherInterface $dispatcher)
     {
         $this->appName = $appName;
 
@@ -96,9 +100,19 @@ class PersonController extends AbstractController
                 // instead of its contents
                 $person->setPath($uploaderService->uploadFile($path, $directory));
             }
+
+            if ($isNew) {
+                $user = $this->getUser();
+                if ($user)
+                    $person->setCreatedBy($user);
+            }
             $this->em->persist($person);
             $this->em->flush();
-            return $this->redirectToRoute('app_list_person');
+            if ($isNew) {
+                $addPersonEvent = new AddPersonEvent($person);
+                $this->dispatcher->dispatch($addPersonEvent, AddPersonEvent::ADD_PRODUCT_EVENT);
+            }
+            return $this->forward('App\Controller\PersonController::listPerson', ['page' => 1, 'nbre' => 12]);
         }
         return $this->render('person/add.hml.twig', [
             "form" => $form->createView()

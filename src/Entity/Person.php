@@ -62,6 +62,9 @@ class Person
     #[ORM\ManyToMany(targetEntity: Hobby::class, inversedBy: 'people')]
     private Collection $hobbies;
 
+    #[ORM\ManyToOne(inversedBy: 'people')]
+    private ?User $createdBy = null;
+
     public function __construct()
     {
         $this->hobbies = new ArrayCollection();
@@ -140,6 +143,18 @@ class Person
     public function removeHobby(Hobby $hobby): static
     {
         $this->hobbies->removeElement($hobby);
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
 
         return $this;
     }
